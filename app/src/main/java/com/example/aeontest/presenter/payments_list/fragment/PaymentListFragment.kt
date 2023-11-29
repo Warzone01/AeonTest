@@ -1,28 +1,31 @@
 package com.example.aeontest.presenter.payments_list.fragment
 
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.aeontest.R
-import com.example.aeontest.common.Constants
-import com.example.aeontest.common.Constants.TOKEN_KEY
-import com.example.aeontest.databinding.FragmentLoginBinding
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.aeontest.databinding.FragmentPaymentListBinding
+import com.example.aeontest.domain.TokenManager
+import com.example.aeontest.presenter.MainActivity
+import com.example.aeontest.presenter.payments_list.PaymentListViewModel
+import com.example.aeontest.presenter.payments_list.adapter.PaymentsAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PaymentListFragment : Fragment() {
 
+    private val viewModel: PaymentListViewModel by viewModels()
     private var _binding: FragmentPaymentListBinding? = null
+
+    @Inject
+    lateinit var tokenManager: TokenManager
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,26 +34,46 @@ class PaymentListFragment : Fragment() {
 
         _binding = FragmentPaymentListBinding.inflate(inflater, container, false)
         val view = binding.root
+        recyclerView = binding.recyclerView
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         return view
     }
 
     override fun onResume() {
         super.onResume()
+        setClicks()
+        viewModel.getList()
+        getPaymentListResult()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    // обрабатывает нажатия
+    private fun setClicks() {
         binding.buttonLogout.setOnClickListener {
-            val sharedPreferences =  requireActivity().getSharedPreferences(Constants.TOKEN_PREFERENCES, Context.MODE_PRIVATE)
-            sharedPreferences.edit().remove(TOKEN_KEY).apply()
-            requireActivity().finish()
+            tokenManager.clearToken()
+            (activity as? MainActivity)?.navigateToLoginFragment()
         }
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PaymentListFragment().apply {
-                arguments = Bundle().apply {
+    // обработка результатов ответа
+    private fun getPaymentListResult() {
+        viewModel.state.observe(viewLifecycleOwner) { resource ->
+            when {
+                resource.error.isNotBlank() -> {
+                    binding.tvPaymentsError.text = resource.error
+                    binding.tvPaymentsError.visibility = View.VISIBLE
+                }
 
+                resource.payments.isNotEmpty() -> {
+                    val adapter = PaymentsAdapter(resource.payments)
+                    recyclerView.adapter = adapter
                 }
             }
+        }
     }
 }

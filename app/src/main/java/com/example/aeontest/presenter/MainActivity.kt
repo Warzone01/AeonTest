@@ -1,21 +1,22 @@
 package com.example.aeontest.presenter
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.aeontest.common.Constants.TOKEN_KEY
-import com.example.aeontest.common.Constants.TOKEN_PREFERENCES
 import com.example.aeontest.databinding.ActivityMainBinding
+import com.example.aeontest.domain.TokenManager
 import com.example.aeontest.presenter.login.fragment.LoginFragment
 import com.example.aeontest.presenter.payments_list.fragment.PaymentListFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,24 +25,35 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
-        navigate()
+        navigateStartScreen()
     }
 
 
-    // навигация между фрагментами
-    private fun navigate() {
-        Log.d("Вызвалось", getToken().toString())
-
+    // переход на фрагмент логина
+    fun navigateToLoginFragment() {
         supportFragmentManager.beginTransaction()
-            .replace(
-                binding.mainContainer.id,
-                if (getToken().isNullOrBlank()) LoginFragment() else PaymentListFragment()
-            )
+            .replace(binding.mainContainer.id, LoginFragment())
             .commit()
     }
 
+    // переход на фрагмент списка
+    fun navigateToPaymentListFragment() {
+        supportFragmentManager.beginTransaction()
+            .replace(binding.mainContainer.id, PaymentListFragment())
+            .commit()
+    }
+
+    // стартовая навигация
+    private fun navigateStartScreen() {
+        if (getToken().isNullOrBlank()) {
+            navigateToLoginFragment()
+        } else {
+            navigateToPaymentListFragment()
+        }
+    }
+
+    // получение token из sharedPreferences
     private fun getToken(): String? {
-        val sharedPreferences = this.getSharedPreferences(TOKEN_PREFERENCES, Context.MODE_PRIVATE)
-        return sharedPreferences.getString(TOKEN_KEY, null)
+        return tokenManager.getToken()
     }
 }

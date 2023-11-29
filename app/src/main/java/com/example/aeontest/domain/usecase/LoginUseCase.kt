@@ -19,16 +19,16 @@ class LoginUseCase @Inject constructor(
             val response = repository.login(login, password).body()
 
             if (response?.success == true) {
-                val token = response.response?.token ?: ""
+                val token = response.response?.token ?: "Unknown error"
                 emit(Resource.Success<UserToken>(UserToken(token)))
             } else {
                 val error = response?.error?.error_msg ?: "Unknown error"
                 emit(Resource.Error<UserToken>(error))
             }
         } catch (e: HttpException) {
-            emit(Resource.Error<UserToken>(e.localizedMessage ?: ""))
+            emit(Resource.Error<UserToken>(e.localizedMessage ?: "Unknown error"))
         } catch (e: IOException) {
-            emit(Resource.Error<UserToken>(e.localizedMessage ?: ""))
+            emit(Resource.Error<UserToken>(e.localizedMessage ?: "Unknown error"))
         }
     }
 }

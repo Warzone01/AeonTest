@@ -13,15 +13,16 @@ import javax.inject.Inject
 class GetPaymentsUseCase @Inject constructor(
     private val repository: EasyPayRepository
 ) {
-    operator fun invoke(token: String): Flow<Resource<List<Payment>>> = flow {
+    operator fun invoke(): Flow<Resource<List<Payment>>> = flow {
         try {
             emit(Resource.Loading<List<Payment>>())
-            val payments = repository.getPayments().map { it.toPayment() }
+            val payments =
+                repository.getPayments().body()?.response?.map { it.toPayment() } ?: emptyList()
             emit(Resource.Success<List<Payment>>(payments))
         } catch (e: HttpException) {
-            emit(Resource.Error<List<Payment>>(e.localizedMessage ?: ""))
+            emit(Resource.Error<List<Payment>>(e.localizedMessage ?: "Unknown error"))
         } catch (e: IOException) {
-            emit(Resource.Error<List<Payment>>(e.localizedMessage ?: ""))
+            emit(Resource.Error<List<Payment>>(e.localizedMessage ?: "Unknown error"))
         }
     }
 }

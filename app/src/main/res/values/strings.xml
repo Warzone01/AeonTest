@@ -3,6 +3,7 @@
     <string name="enter">Войти</string>
     <string name="password">Пароль</string>
     <string name="login">Логин</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="incorrect_login_or_password">Неверный логин или пароль</string>
+    <string name="empty_field">Поля не могут быть пустыми</string>
+    <string name="connection_failed">Отсутствует соединение с сервером</string>
 </resources>

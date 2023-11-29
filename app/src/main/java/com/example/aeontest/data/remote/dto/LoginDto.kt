@@ -6,11 +6,6 @@ data class SuccessResponse(
     val error: ErrorData?
 )
 
-data class ErrorResponse(
-    val success: Boolean,
-    val error: ErrorData?
-)
-
 data class ResponseData(
     val token: String
 )

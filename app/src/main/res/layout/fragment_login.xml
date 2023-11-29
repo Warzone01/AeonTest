@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="32dp"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_android" />
+            android:src="@drawable/ic_login" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/et_login_username_layout"
