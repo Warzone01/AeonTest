@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +31,7 @@ class PaymentListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentPaymentListBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -65,8 +66,7 @@ class PaymentListFragment : Fragment() {
         viewModel.state.observe(viewLifecycleOwner) { resource ->
             when {
                 resource.error.isNotBlank() -> {
-                    binding.tvPaymentsError.text = resource.error
-                    binding.tvPaymentsError.visibility = View.VISIBLE
+                    Toast.makeText(requireContext(), resource.error, Toast.LENGTH_SHORT).show()
                 }
 
                 resource.payments.isNotEmpty() -> {
